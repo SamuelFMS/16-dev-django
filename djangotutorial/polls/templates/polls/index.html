@@ -5,7 +5,7 @@
         <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
         -->
         <!-- Plutot passer par la route -->
-        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }} ({{ question.pub_date }})</a></li>
+        <li><a href="{% url 'polls:detail' question.id %}">{{question.id}} - {{ question.question_text }} ({{ question.pub_date }})</a></li>
     {% endfor %}
     </ul>
 {% else %}
