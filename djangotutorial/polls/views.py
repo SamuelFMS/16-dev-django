@@ -4,9 +4,9 @@ from .models import Question, Choice
 from django.http import Http404
 from django.template import loader
 from django.urls import reverse
-from django.db.models import F
+from django.db.models import F, Max
 from django.views import generic
-
+from django.db.models import Sum
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
@@ -31,6 +31,11 @@ class StatisticsView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["total_questions"] = Question.objects.count()
+        context["total_choices"] = Choice.objects.count()
+        context["total_votes"] = Choice.objects.aggregate(total_votes=Sum("votes"))["total_votes"]
+        context["avg_votes_par_question"] = context["total_votes"]/context["total_questions"]
+        last_date = Question.objects.aggregate(last_date=Max("pub_date"))["last_date"]
+        context["last_question_saved"]  = Question.objects.filter(pub_date=last_date).first()
         return context
 
 class DetailView(generic.DetailView):
