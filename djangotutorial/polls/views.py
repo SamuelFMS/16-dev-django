@@ -24,6 +24,14 @@ class AllView(generic.ListView):
         """Return the last five published questions."""
         return Question.objects.order_by("-pub_date")
 
+class StatisticsView(generic.TemplateView):
+    template_name = "polls/statistics.html"
+    context_object_name = "Statistics"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["total_questions"] = Question.objects.count()
+        return context
 
 class DetailView(generic.DetailView):
     model = Question
