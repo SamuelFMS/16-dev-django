@@ -11,6 +11,9 @@ class Question(models.Model):
         return self.question_text
     def was_published_recently(self):
         return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
+    def age(self):
+        difference = timezone.now() - self.pub_date
+        return difference.days
     def get_choices(self):
         return Choice.objects.filter(question=self)
     def get_number_votes(self):
