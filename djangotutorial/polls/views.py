@@ -1,12 +1,14 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, HttpResponseRedirect
+from django.utils import timezone
 from .models import Question, Choice
 from django.http import Http404
 from django.template import loader
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.db.models import F, Max
 from django.views import generic
 from django.db.models import Sum
+from django.forms import inlineformset_factory
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
@@ -24,6 +26,40 @@ class AllView(generic.ListView):
         """Return the last five published questions."""
         return Question.objects.order_by("-pub_date")
 
+ChoiceFormSet = inlineformset_factory(
+    Question,
+    Choice,
+    fields=["choice_text"],
+    extra=3,
+    min_num=2,
+    validate_min=True,
+    can_delete=False
+)
+
+class FormPollView(generic.CreateView):
+    model = Question
+    fields = ["question_text"]
+    template_name = "polls/form.html"
+    success_url = reverse_lazy("polls:index")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["formset"] = ChoiceFormSet()
+        return context
+
+    def form_valid(self, form):
+        formset = ChoiceFormSet(self.request.POST)
+
+        if not formset.is_valid():
+            return self.render_to_response(self.get_context_data(form=form))
+
+        form.instance.pub_date = timezone.now()
+        self.object = form.save()
+
+        formset.instance = self.object
+        formset.save()
+
+        return HttpResponseRedirect(self.get_success_url())
 class StatisticsView(generic.TemplateView):
     template_name = "polls/statistics.html"
     context_object_name = "Statistics"
