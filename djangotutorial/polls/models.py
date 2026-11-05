@@ -23,12 +23,6 @@ class Question(models.Model):
             nombre_vote += choice.votes
         return nombre_vote
 
-class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['question_text', 'pub_date']
-    list_filter = ['pub_date']
-    ordering = ["-pub_date", "question_text"]
-    search_fields = ['question_text', 'pub_date']
-
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=200)
@@ -40,9 +34,3 @@ class Choice(models.Model):
         return self.votes/number_of_votes * 100
     def __str__(self):
         return self.choice_text
-
-class ChoiceAdmin(admin.ModelAdmin):
-    list_display = ['question','choice_text', 'votes']
-    list_filter = ['question', 'votes']
-    ordering = ["question", "votes", "choice_text"]
-    search_fields = ['question', 'choice_text', 'votes']
