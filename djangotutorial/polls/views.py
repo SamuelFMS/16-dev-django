@@ -85,16 +85,11 @@ class ResultsView(generic.DetailView):
 
 class FrequencyView(generic.DetailView):
     model = Question
-    """
-        Jimagine quil est possible de le faire avec get_queryset ou une autre methode
-    """
-    def get_queryset(self):
-        # Récupère le queryset de base
-        queryset = super().get_queryset()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["frequencies"] = self.object.get_choices_with_frequency()
 
-        print("Query set ", queryset)
-        print(self.model.get_number_votes())
-        return queryset
+        return context
 
     template_name = "polls/frequency.html"
 

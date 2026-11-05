@@ -27,6 +27,12 @@ class Question(models.Model):
         for choice in self.get_choices():
             nombre_vote += choice.votes
         return nombre_vote
+    def get_choices_with_frequency(self):
+        total = 0
+        choices = self.choice_set.all()
+        for c in choices:
+            total += c.votes
+        return [(c.choice_text, c.votes, c.votes/total*100) for c in choices]
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
