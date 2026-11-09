@@ -1,0 +1,20 @@
+{% load static %}
+<html lang="fr">
+<head>
+    <title>{% block title %}Titre par défaut{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+    {% block css %}{% endblock %}
+</head>
+<body>
+<header>
+    {% block header %}
+    <h1>Mon site de sondages</h1>
+    {% endblock %}
+</header>
+
+<main>
+    {% block main %}
+    {% endblock %}
+</main>
+</body>
+</html>
