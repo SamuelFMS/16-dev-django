@@ -1,4 +1,5 @@
 from django.contrib import admin
+from typing import ClassVar
 
 from polls.models import Choice, Question
 
@@ -9,22 +10,26 @@ class ChoiceInline(admin.TabularInline):
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ["question_text", "pub_date", "was_published_recently"]
-    list_filter = ["pub_date"]
-    ordering = ["-pub_date", "question_text"]
-    search_fields = ["question_text", "pub_date"]
-    fieldsets = [
+    list_display: ClassVar[list[str]] = [
+        "question_text",
+        "pub_date",
+        "was_published_recently",
+    ]
+    list_filter: ClassVar[list[str]] = ["pub_date"]
+    ordering: ClassVar[list[str]] = ["-pub_date", "question_text"]
+    search_fields: ClassVar[list[str]] = ["question_text", "pub_date"]
+    fieldsets: ClassVar[list] = [
         (None, {"fields": ["question_text"]}),
         ("Date information", {"fields": ["pub_date"]}),
     ]
-    inlines = [ChoiceInline]
+    inlines: ClassVar[list] = [ChoiceInline]
 
 
 class ChoiceAdmin(admin.ModelAdmin):
-    list_display = ["question", "choice_text", "votes"]
-    list_filter = ["question", "votes"]
-    ordering = ["question", "votes", "choice_text"]
-    search_fields = ["question", "choice_text", "votes"]
+    list_display: ClassVar[list[str]] = ["question", "choice_text", "votes"]
+    list_filter: ClassVar[list[str]] = ["question", "votes"]
+    ordering: ClassVar[list[str]] = ["question", "votes", "choice_text"]
+    search_fields: ClassVar[list[str]] = ["question", "choice_text", "votes"]
 
 
 admin.site.register(Question, QuestionAdmin)

@@ -1,3 +1,4 @@
+from typing import ClassVar
 from django.db.models import F, Max, Sum
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
@@ -39,7 +40,7 @@ ChoiceFormSet = inlineformset_factory(
 
 class FormPollView(generic.CreateView):
     model = Question
-    fields = ["question_text"]
+    fields: ClassVar[list[str]] = ["question_text"]
     template_name = "polls/form.html"
     success_url = reverse_lazy("polls:index")
 
