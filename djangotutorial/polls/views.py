@@ -1,14 +1,13 @@
-from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import timezone
-from .models import Question, Choice
-from django.http import Http404
-from django.template import loader
-from django.urls import reverse, reverse_lazy
-from django.db.models import F, Max
-from django.views import generic
-from django.db.models import Sum
+from django.db.models import F, Max, Sum
 from django.forms import inlineformset_factory
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.views import generic
+
+from .models import Choice, Question
+
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
@@ -18,6 +17,7 @@ class IndexView(generic.ListView):
         """Return the last five published questions."""
         return Question.objects.order_by("-pub_date")[:5]
 
+
 class AllView(generic.ListView):
     template_name = "polls/all.html"
     context_object_name = "latest_question_list"
@@ -26,6 +26,7 @@ class AllView(generic.ListView):
         """Return the last five published questions."""
         return Question.objects.order_by("-pub_date")
 
+
 ChoiceFormSet = inlineformset_factory(
     Question,
     Choice,
@@ -33,7 +34,7 @@ ChoiceFormSet = inlineformset_factory(
     extra=3,
     min_num=2,
     validate_min=True,
-    can_delete=False
+    can_delete=False,
 )
 
 class FormPollView(generic.CreateView):
@@ -60,6 +61,8 @@ class FormPollView(generic.CreateView):
         formset.save()
 
         return HttpResponseRedirect(self.get_success_url())
+
+
 class StatisticsView(generic.TemplateView):
     template_name = "polls/statistics.html"
     context_object_name = "Statistics"
@@ -68,11 +71,18 @@ class StatisticsView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         context["total_questions"] = Question.objects.count()
         context["total_choices"] = Choice.objects.count()
-        context["total_votes"] = Choice.objects.aggregate(total_votes=Sum("votes"))["total_votes"]
-        context["avg_votes_par_question"] = context["total_votes"]/context["total_questions"]
+        context["total_votes"] = Choice.objects.aggregate(total_votes=Sum("votes"))[
+            "total_votes"
+        ]
+        context["avg_votes_par_question"] = (
+            context["total_votes"] / context["total_questions"]
+        )
         last_date = Question.objects.aggregate(last_date=Max("pub_date"))["last_date"]
-        context["last_question_saved"]  = Question.objects.filter(pub_date=last_date).first()
+        context["last_question_saved"] = Question.objects.filter(
+            pub_date=last_date
+        ).first()
         return context
+
 
 class DetailView(generic.DetailView):
     model = Question
@@ -83,8 +93,10 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = "polls/results.html"
 
+
 class FrequencyView(generic.DetailView):
     model = Question
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["frequencies"] = self.object.get_choices_with_frequency()
@@ -92,6 +104,7 @@ class FrequencyView(generic.DetailView):
         return context
 
     template_name = "polls/frequency.html"
+
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -115,6 +128,8 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
+
+
 """
 def index(request):
     latest_question_list = Question.objects.order_by("-pub_date")[:5]
@@ -151,4 +166,3 @@ def frequency(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, "polls/frequency.html", {"question": question})
 '''
-
