@@ -11,10 +11,13 @@
     {% block header %}
     <h1>Mon site de sondages</h1>
     {% if user.is_authenticated %}
-    <form action="{% url 'polls:logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Se déconnecter</button>
-    </form>
+    <div class="flex">
+        <p>{{ user.username }}</p>
+        <form action="{% url 'polls:logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Se déconnecter</button>
+        </form>
+    </div>
     {% else %}
     <a href="{% url 'polls:login' %}">Se connecter</a>
     {% endif %}
