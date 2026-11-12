@@ -5,3 +5,14 @@ li a {
 body {
     background: white url("images/background.webp") no-repeat;
 }
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    margin: 0;
+}

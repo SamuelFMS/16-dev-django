@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from django.db.models import F, Max, Sum
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
@@ -48,7 +48,9 @@ class LoginView(generic.TemplateView):
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(username=username, password=password)
-        if user is not None:
+
+        if user is not None and user.is_active:
+            login(request, user)
             return HttpResponseRedirect(reverse("polls:index"))
         else:
             return render(
@@ -56,6 +58,14 @@ class LoginView(generic.TemplateView):
                 self.template_name,
                 {"username": username, "password": password},
             )
+
+
+class LogoutView(generic.View):
+    def post(self, request, *args, **kwargs):
+        from django.contrib.auth import logout
+
+        logout(request)
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
 class FormPollView(generic.CreateView):
@@ -71,7 +81,14 @@ class FormPollView(generic.CreateView):
 
     def form_valid(self, form):
         formset = ChoiceFormSet(self.request.POST)
-
+        if not self.request.user.is_authenticated:
+            alert_message = "You must be logged in to create a poll."
+            return render(
+                self.request,
+                self.template_name,
+                {"form": form, "formset": formset, "alert_message": alert_message},
+            )
+            # return self.render_to_response(self.get_context_data(form=form))
         if not formset.is_valid():
             return self.render_to_response(self.get_context_data(form=form))
 
@@ -96,7 +113,7 @@ class StatisticsView(generic.TemplateView):
             "total_votes"
         ]
         context["avg_votes_par_question"] = (
-                context["total_votes"] / context["total_questions"]
+            context["total_votes"] / context["total_questions"]
         )
         last_date = Question.objects.aggregate(last_date=Max("pub_date"))["last_date"]
         context["last_question_saved"] = Question.objects.filter(

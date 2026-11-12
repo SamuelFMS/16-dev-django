@@ -1,5 +1,6 @@
-from django.contrib import admin
 from typing import ClassVar
+
+from django.contrib import admin
 
 from polls.models import Choice, Question
 

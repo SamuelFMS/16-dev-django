@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block main %}
+<p>{{ alert_message }}</p>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
