@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+{% if next %}
+{% if user.is_authenticated %}
+<p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+{% else %}
+<p>Please login to see this page.</p>
+{% endif %}
+{% else %}
+{% if user.is_authenticated %}
+<p>You are logged in as {{ user.username }}.</p>
+{% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'polls:login' %}">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Username" value="{{ username }}">
+    <input type="password" name="password" placeholder="Password">
+
+    <input type="submit" value="login">
+    <input type="hidden" name="next" value="{{ next }}">
+</form>
+
+<p><a href="{% url 'polls:index' %}">Lost password?</a></p>
+
+{% endblock %}

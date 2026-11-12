@@ -1,4 +1,6 @@
 from typing import ClassVar
+
+from django.contrib.auth import authenticate
 from django.db.models import F, Max, Sum
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
@@ -38,6 +40,24 @@ ChoiceFormSet = inlineformset_factory(
     can_delete=False,
 )
 
+
+class LoginView(generic.TemplateView):
+    template_name = "registration/login.html"
+
+    def post(self, request, *args, **kwargs):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            return HttpResponseRedirect(reverse("polls:index"))
+        else:
+            return render(
+                request,
+                self.template_name,
+                {"username": username, "password": password},
+            )
+
+
 class FormPollView(generic.CreateView):
     model = Question
     fields: ClassVar[list[str]] = ["question_text"]
@@ -76,7 +96,7 @@ class StatisticsView(generic.TemplateView):
             "total_votes"
         ]
         context["avg_votes_par_question"] = (
-            context["total_votes"] / context["total_questions"]
+                context["total_votes"] / context["total_questions"]
         )
         last_date = Question.objects.aggregate(last_date=Max("pub_date"))["last_date"]
         context["last_question_saved"] = Question.objects.filter(
