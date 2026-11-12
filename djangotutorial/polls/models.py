@@ -39,6 +39,8 @@ class Question(models.Model):
         choices = self.choice_set.all()
         for c in choices:
             total += c.votes
+        if total == 0:
+            return [(c.choice_text, c.votes, 0) for c in choices]
         return [(c.choice_text, c.votes, c.votes / total * 100) for c in choices]
 
 
